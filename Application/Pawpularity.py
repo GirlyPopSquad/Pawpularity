@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 import pandas as pd
-import os
 
 class CSVViewerApp:
     def __init__(self, root):
