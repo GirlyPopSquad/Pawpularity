@@ -13,10 +13,10 @@ class CSVViewerApp:
         self.button_frame = tk.Frame(root)
         self.button_frame.pack(pady=10)
 
-        self.file1_button = ttk.Button(self.button_frame, text="Load test.csv", command=lambda: self.load_csv(os.path.join("Data", "test.csv")))
+        self.file1_button = ttk.Button(self.button_frame, text="Load test.csv", command=lambda: self.load_csv("Application/Data/train.csv"))
         self.file1_button.grid(row=0, column=0, padx=5)
 
-        self.file2_button = ttk.Button(self.button_frame, text="Load train.csv", command=lambda: self.load_csv(os.path.join("Data", "train.csv")))
+        self.file2_button = ttk.Button(self.button_frame, text="Load train.csv", command=lambda: self.load_csv("Application/Data/test.csv"))
         self.file2_button.grid(row=0, column=1, padx=5)
 
         # Treeview (Table)
