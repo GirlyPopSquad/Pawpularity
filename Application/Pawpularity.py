@@ -33,8 +33,8 @@ class CSVViewerApp:
         self.vsb.pack(side="right", fill="y")
         self.hsb.pack(side="bottom", fill="x")
         
-        self.canvas = tk.Canvas(root, bg="gray", width=500, height=500)
-        self.canvas.pack(pady=10, expand=True)
+        self.canvas = tk.Canvas(root)
+        self.canvas.pack(pady=10)
         
         self.tree.bind("<<TreeviewSelect>>", self.on_row_selected)
     
@@ -87,13 +87,32 @@ class CSVViewerApp:
         """Displays the selected image."""
         image = Image.open(image_path)
 
-        # Resize image to fit the canvas dimensions
+        # Get image dimensions
+        img_width, img_height = image.size
+
+        # Get canvas dimensions
         canvas_width = self.canvas.winfo_width()
         canvas_height = self.canvas.winfo_height()
-        image = image.resize((canvas_width, canvas_height), Image.Resampling.LANCZOS)
+
+        # Calculate the aspect ratio of the image
+        img_aspect_ratio = img_width / img_height
+        canvas_aspect_ratio = canvas_width / canvas_height
+
+        if img_aspect_ratio > canvas_aspect_ratio:
+            # Image is wider than canvas
+            new_width = canvas_width
+            new_height = int(new_width / img_aspect_ratio)
+        else:
+            # Image is taller than canvas
+            new_height = canvas_height
+            new_width = int(new_height * img_aspect_ratio)
+
+        # Resize image to fit the canvas dimensions while maintaining aspect ratio
+        image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
 
         self.photo = ImageTk.PhotoImage(image)  # Keep a reference to avoid garbage collection
         self.canvas.create_image(canvas_width // 2, canvas_height // 2, anchor="center", image=self.photo)
+        
 
 if __name__ == "__main__":
     root = tk.Tk()
