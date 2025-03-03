@@ -108,7 +108,7 @@ class CSVViewerApp:
             new_width = int(new_height * img_aspect_ratio)
 
         # Resize image to fit the canvas dimensions while maintaining aspect ratio
-        image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+        image = image.resize((new_width, new_height))
 
         self.photo = ImageTk.PhotoImage(image)  # Keep a reference to avoid garbage collection
         self.canvas.create_image(canvas_width // 2, canvas_height // 2, anchor="center", image=self.photo)
