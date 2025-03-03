@@ -83,7 +83,7 @@ class CSVViewerApp:
         image = image.resize((400, 400), Image.Resampling.LANCZOS)  
         photo = ImageTk.PhotoImage(image)
 
-        self.image_label.config(image=photo, text="") 
+        self.image_label.config(image=photo, text="")  # Remove placeholder text
         self.image_label.image = photo  # Keep reference to avoid garbage collection
 
 if __name__ == "__main__":
