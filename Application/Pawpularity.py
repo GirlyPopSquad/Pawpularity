@@ -33,8 +33,8 @@ class CSVViewerApp:
         self.vsb.pack(side="right", fill="y")
         self.hsb.pack(side="bottom", fill="x")
         
-        self.image_label = tk.Label(root, text="No image selected", bg="gray", width=50, height=20)
-        self.image_label.pack(pady=10)
+        self.canvas = tk.Canvas(root, bg="gray", width=500, height=500)
+        self.canvas.pack(pady=10, expand=True)
         
         self.tree.bind("<<TreeviewSelect>>", self.on_row_selected)
     
@@ -68,9 +68,17 @@ class CSVViewerApp:
             
             # Assuming 'id' is the first column
             image_id = str(row_values[0])  
-            image_path = "Application/Data/train/" + image_id + ".jpg"
+            
+            possible_folders = ["Application/Data/train/", "Application/Data/test/"]
 
-            if image_path:
+            image_path = None
+            for folder in possible_folders:
+                possible_path = folder + image_id + ".jpg"
+                if os.path.exists(possible_path):
+                    image_path = possible_path
+                    break 
+
+            if os.path.exists(image_path):
                 self.show_image(image_path)
             else:
                 self.image_label.config(text="Image not found", image="")
@@ -79,12 +87,13 @@ class CSVViewerApp:
         """Displays the selected image."""
         image = Image.open(image_path)
 
-        # Resize image to a larger size (e.g., 400x400)
-        image = image.resize((400, 400), Image.Resampling.LANCZOS)  
-        photo = ImageTk.PhotoImage(image)
+        # Resize image to fit the canvas dimensions
+        canvas_width = self.canvas.winfo_width()
+        canvas_height = self.canvas.winfo_height()
+        image = image.resize((canvas_width, canvas_height), Image.Resampling.LANCZOS)
 
-        self.image_label.config(image=photo, text="")  # Remove placeholder text
-        self.image_label.image = photo  # Keep reference to avoid garbage collection
+        self.photo = ImageTk.PhotoImage(image)  # Keep a reference to avoid garbage collection
+        self.canvas.create_image(canvas_width // 2, canvas_height // 2, anchor="center", image=self.photo)
 
 if __name__ == "__main__":
     root = tk.Tk()
