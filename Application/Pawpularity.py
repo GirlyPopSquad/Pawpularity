@@ -4,7 +4,6 @@ import pandas as pd
 import os
 from PIL import Image, ImageTk
 
-
 class CSVViewerApp:
     def __init__(self, root):
         self.root = root
@@ -15,11 +14,11 @@ class CSVViewerApp:
         self.button_frame = tk.Frame(root)
         self.button_frame.pack(pady=10)
 
-        self.file1_button = ttk.Button(self.button_frame, text="Load test.csv", command=lambda: self.load_csv("Application/Data/test.csv"))
-        self.file1_button.grid(row=0, column=0, padx=5)
-
-        self.file2_button = ttk.Button(self.button_frame, text="Load train.csv", command=lambda: self.load_csv("Application/Data/train.csv"))
-        self.file2_button.grid(row=0, column=1, padx=5)
+        # Button for each CSV file in the Data folder
+        csv_files = self.load_csv_files()
+        for file in csv_files:
+            button = ttk.Button(self.button_frame, text=f"Load {file}", command=lambda f=file: self.load_csv(f"Application/Data/{f}"))
+            button.pack(side="left", padx=5)
 
         # Treeview (Table)
         self.tree = ttk.Treeview(root, show="headings")
@@ -35,8 +34,12 @@ class CSVViewerApp:
         
         self.canvas = tk.Canvas(root)
         self.canvas.pack(pady=10)
-        
-        self.tree.bind("<<TreeviewSelect>>", self.on_row_selected)
+    
+    def load_csv_files(self):
+        path = "Application/Data"
+        dir_list = os.listdir(path)
+        csv_list =  filter(lambda x: x.endswith('.csv'), dir_list)
+        return csv_list
     
     def load_csv(self, file_name):
         try:
@@ -56,11 +59,12 @@ class CSVViewerApp:
             for _, row in df.iterrows():
                 self.tree.insert("", "end", values=list(row))
 
+            self.tree.bind("<<TreeviewSelect>>", lambda event: self.on_row_selected(event, file_name))
+
         except Exception as e:
             print(f"Error loading file: {e}")
             
-            
-    def on_row_selected(self, event):
+    def on_row_selected(self,event, file):
         """Triggered when a row is selected in the table."""
         selected_item = self.tree.selection()
         if selected_item:
@@ -68,23 +72,28 @@ class CSVViewerApp:
             
             # Assuming 'id' is the first column
             image_id = str(row_values[0])  
-            
-            possible_folders = ["Application/Data/train/", "Application/Data/test/"]
 
-            image_path = None
-            for folder in possible_folders:
-                possible_path = folder + image_id + ".jpg"
-                if os.path.exists(possible_path):
-                    image_path = possible_path
-                    break 
+            # Check if folder exists with the name of the file
+            filename = file.replace(".csv", "")
+            folder = f"{filename}"
+        
+            possible_path = folder + "/" + image_id + ".jpg"
 
-            if os.path.exists(image_path):
-                self.show_image(image_path)
+            self.show_text("Image Loading", self.canvas.winfo_width() // 2, self.canvas.winfo_height() // 2)
+
+            if os.path.exists(possible_path):
+                self.show_image(possible_path)
             else:
-                self.image_label.config(text="Image not found", image="")
-      
+                self.show_text("Image not found", self.canvas.winfo_width() // 2, self.canvas.winfo_height() // 2)
+
+    def show_text(self, text, x, y):
+        """Displays text on the canvas at the specified position."""
+        self.canvas.delete("all")
+        self.canvas.create_text(x, y, text=text, anchor="center")
+
     def show_image(self, image_path):
         """Displays the selected image."""
+        self.canvas.delete("all")
         image = Image.open(image_path)
 
         # Get image dimensions
@@ -113,7 +122,6 @@ class CSVViewerApp:
         self.photo = ImageTk.PhotoImage(image)  # Keep a reference to avoid garbage collection
         self.canvas.create_image(canvas_width // 2, canvas_height // 2, anchor="center", image=self.photo)
         
-
 if __name__ == "__main__":
     root = tk.Tk()
     app = CSVViewerApp(root)
