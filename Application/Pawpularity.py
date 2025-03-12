@@ -6,8 +6,8 @@ from PIL import Image, ImageTk
 import Regression as reg
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-pawpularity_model, mse, r2 = reg.train_pawpularity_model()
-human_model, accuracy, loss = reg.train_human_model()
+pawpularity_model, mse, r2, pawpularity_best_param, pawpularity_best_score = reg.train_pawpularity_model()
+human_model, accuracy, loss, human_best_param, human_best_score = reg.train_human_model()
 
 class CSVViewerApp:
     def __init__(self, root):
@@ -53,6 +53,15 @@ class CSVViewerApp:
         self.metricsLabel3.pack(anchor="w", side="bottom", expand=True)
         self.metricsLabel4 = tk.Label(root)
         self.metricsLabel4.pack(anchor="w", side="bottom", expand=True)
+        
+        self.hyperparamterlabel1 = tk.Label(root)
+        self.hyperparamterlabel1.pack(anchor="w", side="bottom")
+        self.hyperparamterlabel2 = tk.Label(root)
+        self.hyperparamterlabel2.pack(anchor="w", side="bottom")
+        self.hyperparamterlabel3 = tk.Label(root)
+        self.hyperparamterlabel3.pack(anchor="w", side="bottom")
+        self.hyperparamterlabel4 = tk.Label(root)
+        self.hyperparamterlabel4.pack(anchor="w", side="bottom")
         
         self.humanLabel = tk.Label(root)
         self.humanLabel.pack(expand=True)
@@ -149,6 +158,11 @@ class CSVViewerApp:
         self.metricsLabel2.configure(text="R2: {}".format(r2))
         self.metricsLabel3.configure(text="Accuracy: {}".format(accuracy))
         self.metricsLabel4.configure(text="Log Loss: {}".format(loss))
+        
+        self.hyperparamterlabel1.configure(text="PBA: {}".format(pawpularity_best_param))
+        self.hyperparamterlabel2.configure(text="PBS: {}".format(pawpularity_best_score))
+        self.hyperparamterlabel3.configure(text="HBA: {}".format(human_best_param))
+        self.hyperparamterlabel4.configure(text="HBS: {}".format(human_best_score))
         
     def show_pawpularity_score(self,image_id, file):
         
