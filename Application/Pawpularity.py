@@ -7,11 +7,12 @@ import Regression as reg
 
 model = reg.train_model()
 
+
 class CSVViewerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("CSV Viewer")
-        self.root.geometry("700x500")
+        self.root.geometry("800x600")
         
 
         # Buttons to load specific CSV files
@@ -27,6 +28,7 @@ class CSVViewerApp:
         # Treeview (Table)
         self.tree = ttk.Treeview(root, show="headings")
         self.tree.pack(expand=False, fill="both")
+        
 
         # Scrollbars
         self.vsb = ttk.Scrollbar(root, orient="vertical", command=self.tree.yview)
@@ -38,6 +40,11 @@ class CSVViewerApp:
         
         self.canvas = tk.Canvas(root)
         self.canvas.pack(pady=10)
+        
+        self.pawpularityLabel = tk.Label(root)
+        self.pawpularityLabel.pack(expand=True)
+        
+        
     
     def load_csv_files(self):
         path = "Application/Data"
@@ -138,11 +145,7 @@ class CSVViewerApp:
         
         result = model.predict(image_data)
         
-        pawpularityLabel = tk.Label(root, text="Pawpularity score: {result}")
-        pawpularityLabel.pack(side="left", fill="x", expand=True)
-        
-        
-        
+        self.pawpularityLabel.configure(text="Pawpularity score: {}".format(result))    
         
 if __name__ == "__main__":
     root = tk.Tk()
