@@ -14,63 +14,73 @@ class CSVViewerApp:
         self.root = root
         self.root.title("CSV Viewer")
         self.root.geometry("800x600")
-        
 
-        # Buttons to load specific CSV files
-        self.button_frame = tk.Frame(root)
-        self.button_frame.pack(pady=10)
-
-        # Button for each CSV file in the Data folder
         csv_files = self.load_csv_files()
-        for file in csv_files:
-            button = ttk.Button(self.button_frame, text=f"Load {file}", command=lambda f=file: self.load_csv(f"Application/Data/{f}"))
-            button.pack(side="left", padx=5)
+        options = csv_files
 
-        # Treeview (Table)
-        self.tree = ttk.Treeview(root, show="headings")
-        self.tree.pack(expand=False, fill="both")
-        
+        # Dropdown
+        chosen_file = tk.StringVar()
+        dropdown = ttk.OptionMenu(root, chosen_file, 'Choose csv', *options, command=lambda file: self.load_csv(f"Application/Data/{file}"))
+        dropdown.pack()
 
-        # Scrollbars
-        self.vsb = ttk.Scrollbar(root, orient="vertical", command=self.tree.yview)
-        self.hsb = ttk.Scrollbar(root, orient="horizontal", command=self.tree.xview)
-        self.tree.configure(yscrollcommand=self.vsb.set, xscrollcommand=self.hsb.set)
+        # Treeview (Table) with Scrollbar
+        self.tree_frame = tk.Frame(root)
+        self.tree_frame.pack(expand=False, fill="both")
 
-        self.vsb.pack(side="right", fill="y")
-        self.hsb.pack(side="bottom", fill="x")
+        self.tree_scroll = tk.Scrollbar(self.tree_frame)
+        self.tree_scroll.pack(side="right", fill="y")
+
+        self.tree = ttk.Treeview(self.tree_frame, show="headings", yscrollcommand=self.tree_scroll.set)
+        self.tree.pack(expand=False, fill="both", padx=(20 , 0)) #Added paddign to make it look symmetrical against the scrollbar
+
+        self.tree_scroll.config(command=self.tree.yview)
         
-        self.canvas = tk.Canvas(root)
-        self.canvas.pack(pady=10)
+        self.setup_details(root)
+
+    def setup_details(self, root):
+        self.details_frame = tk.Frame(root)
+        self.details_frame.pack(expand=False, fill="both")
+
+        #Canvas Frame
+        self.canvas_frame = tk.Frame(self.details_frame)
+        self.canvas_frame.pack(padx=20, pady=10, side=tk.RIGHT)
+
+        self.canvas = tk.Canvas(self.canvas_frame)
+        self.canvas.pack(expand=False)
+
+        self.pawpularityLabel = tk.Label(self.canvas_frame)
+        self.pawpularityLabel.pack(expand=False)
+
+        self.humanLabel = tk.Label(self.canvas_frame)
+        self.humanLabel.pack(expand=False)
+
+        #Metrics Frame
+        self.metrics_frame = tk.Frame(self.details_frame)
+        self.metrics_frame.pack(padx=20, pady=10, side=tk.LEFT)
+
+        self.metricsLabel1 = tk.Label(self.metrics_frame)
+        self.metricsLabel1.pack(anchor="w", side="bottom", expand=False)
+        self.metricsLabel2 = tk.Label(self.metrics_frame)
+        self.metricsLabel2.pack(anchor="w", side="bottom", expand=False)
+        self.metricsLabel3 = tk.Label(self.metrics_frame)
+        self.metricsLabel3.pack(anchor="w", side="bottom", expand=False)
+        self.metricsLabel4 = tk.Label(self.metrics_frame)
+        self.metricsLabel4.pack(anchor="w", side="bottom", expand=False)
         
-        self.pawpularityLabel = tk.Label(root)
-        self.pawpularityLabel.pack(expand=True)
-        
-        self.metricsLabel1 = tk.Label(root)
-        self.metricsLabel1.pack(anchor="w", side="bottom", expand=True)
-        self.metricsLabel2 = tk.Label(root)
-        self.metricsLabel2.pack(anchor="w", side="bottom", expand=True)
-        self.metricsLabel3 = tk.Label(root)
-        self.metricsLabel3.pack(anchor="w", side="bottom", expand=True)
-        self.metricsLabel4 = tk.Label(root)
-        self.metricsLabel4.pack(anchor="w", side="bottom", expand=True)
-        
-        self.hyperparamterlabel1 = tk.Label(root)
+        self.hyperparamterlabel1 = tk.Label(self.metrics_frame)
         self.hyperparamterlabel1.pack(anchor="w", side="bottom")
-        self.hyperparamterlabel2 = tk.Label(root)
+        self.hyperparamterlabel2 = tk.Label(self.metrics_frame)
         self.hyperparamterlabel2.pack(anchor="w", side="bottom")
-        self.hyperparamterlabel3 = tk.Label(root)
+        self.hyperparamterlabel3 = tk.Label(self.metrics_frame)
         self.hyperparamterlabel3.pack(anchor="w", side="bottom")
-        self.hyperparamterlabel4 = tk.Label(root)
+        self.hyperparamterlabel4 = tk.Label(self.metrics_frame)
         self.hyperparamterlabel4.pack(anchor="w", side="bottom")
-        
-        self.humanLabel = tk.Label(root)
-        self.humanLabel.pack(expand=True)
     
     def load_csv_files(self):
         path = "Application/Data"
         dir_list = os.listdir(path)
         csv_list =  filter(lambda x: x.endswith('.csv'), dir_list)
-        return csv_list
+        return list(csv_list)
     
     def load_csv(self, file_name):
         try:
