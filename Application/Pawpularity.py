@@ -5,8 +5,8 @@ import os
 from PIL import Image, ImageTk
 import Regression as reg
 
-model = reg.train_model()
-
+pawpularity_model = reg.train_pawpularity_model()
+human_model = reg.train_human_model()
 
 class CSVViewerApp:
     def __init__(self, root):
@@ -44,7 +44,8 @@ class CSVViewerApp:
         self.pawpularityLabel = tk.Label(root)
         self.pawpularityLabel.pack(expand=True)
         
-        
+        self.humanLabel = tk.Label(root)
+        self.humanLabel.pack(expand=True)
     
     def load_csv_files(self):
         path = "Application/Data"
@@ -95,7 +96,7 @@ class CSVViewerApp:
             if os.path.exists(possible_path):
                 self.show_image(possible_path)
                 self.show_pawpularity_score(image_id, file)
-                
+                self.remove_if_human(image_id, file)
             else:
                 self.show_text("Image not found", self.canvas.winfo_width() // 2, self.canvas.winfo_height() // 2)
 
@@ -141,11 +142,28 @@ class CSVViewerApp:
     
         image_data = df.loc[df['Id'] == image_id]
         
-        image_data = image_data.drop(columns=['Id', 'Pawpularity'])
+        if "test.csv" in file:
+            image_data = image_data.drop(columns=['Id'])
+        else:
+            image_data = image_data.drop(columns=['Id', 'Pawpularity'])
         
-        result = model.predict(image_data)
+        result = pawpularity_model.predict(image_data)
         
-        self.pawpularityLabel.configure(text="Pawpularity score: {}".format(result))    
+        self.pawpularityLabel.configure(text="Pawpularity score: {}".format(result))   
+
+    def remove_if_human(self,image_id, file):
+        
+        df = pd.read_csv(file)
+    
+        image_data = df.loc[df['Id'] == image_id]
+        
+        if "test.csv" in file:
+            image_data = image_data.drop(columns=['Id', 'Human'])
+        else:
+            image_data = image_data.drop(columns=['Id', 'Human', 'Pawpularity'])
+        
+        result = human_model.predict(image_data) 
+        self.humanLabel.configure(text="Human score: {}".format(result))  
         
 if __name__ == "__main__":
     root = tk.Tk()
