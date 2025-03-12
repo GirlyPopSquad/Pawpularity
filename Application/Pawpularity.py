@@ -3,12 +3,16 @@ from tkinter import ttk
 import pandas as pd
 import os
 from PIL import Image, ImageTk
+import Regression as reg
+
+model = reg.train_model()
 
 class CSVViewerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("CSV Viewer")
         self.root.geometry("700x500")
+        
 
         # Buttons to load specific CSV files
         self.button_frame = tk.Frame(root)
@@ -83,6 +87,8 @@ class CSVViewerApp:
 
             if os.path.exists(possible_path):
                 self.show_image(possible_path)
+                self.show_pawpularity_score(image_id, file)
+                
             else:
                 self.show_text("Image not found", self.canvas.winfo_width() // 2, self.canvas.winfo_height() // 2)
 
@@ -121,6 +127,22 @@ class CSVViewerApp:
 
         self.photo = ImageTk.PhotoImage(image)  # Keep a reference to avoid garbage collection
         self.canvas.create_image(canvas_width // 2, canvas_height // 2, anchor="center", image=self.photo)
+        
+    def show_pawpularity_score(self,image_id, file):
+        
+        df = pd.read_csv(file)
+    
+        image_data = df.loc[df['Id'] == image_id]
+        
+        image_data = image_data.drop(columns=['Id', 'Pawpularity'])
+        
+        result = model.predict(image_data)
+        
+        pawpularityLabel = tk.Label(root, text="Pawpularity score: {result}")
+        pawpularityLabel.pack(side="left", fill="x", expand=True)
+        
+        
+        
         
 if __name__ == "__main__":
     root = tk.Tk()
