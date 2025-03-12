@@ -4,9 +4,12 @@ import pandas as pd
 import os
 from PIL import Image, ImageTk
 import Regression as reg
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-pawpularity_model = reg.train_pawpularity_model()
-human_model = reg.train_human_model()
+pawpularity_X_train, pawpularity_X_test, pawpularity_y_train, pawpularity_y_test = reg.load_pawpularity_data()
+human_X_train, human_X_test, human_y_train, human_y_test = reg.load_human_data()
+pawpularity_model = reg.train_pawpularity_model(pawpularity_X_train, pawpularity_y_train)
+human_model = reg.train_human_model(human_X_train, human_y_train)
 
 class CSVViewerApp:
     def __init__(self, root):
@@ -148,6 +151,10 @@ class CSVViewerApp:
             image_data = image_data.drop(columns=['Id', 'Pawpularity'])
         
         result = pawpularity_model.predict(image_data)
+
+        mse = mean_squared_error(pawpularity_y_test, result)
+        mae = mean_absolute_error(pawpularity_y_test, result)
+        r2 = r2_score(pawpularity_y_test, result)
         
         self.pawpularityLabel.configure(text="Pawpularity score: {}".format(result))   
 
@@ -163,7 +170,11 @@ class CSVViewerApp:
             image_data = image_data.drop(columns=['Id', 'Human', 'Pawpularity'])
         
         result = human_model.predict(image_data) 
-        self.humanLabel.configure(text="Human score: {}".format(result))  
+        self.humanLabel.configure(text="Human score: {}".format(result))
+
+        if result ==[1]:
+            self.show_text("Human detected on image, removed image", self.canvas.winfo_width() // 2, self.canvas.winfo_height() // 2)
+ 
         
 if __name__ == "__main__":
     root = tk.Tk()

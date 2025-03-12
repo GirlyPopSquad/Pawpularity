@@ -21,18 +21,16 @@ def load_human_data():
 
     return X_train, X_test, y_train, y_test
 
-def train_pawpularity_model():
-    X_train, X_test, y_train, y_test = load_pawpularity_data()
+def train_pawpularity_model(X_train, y_train):
     model = LinearRegression()
     model.fit(X_train, y_train)
 
     return model
 
-def train_human_model():
-    X_train, X_test, y_train, y_test = load_human_data()
+def train_human_model(X_train,y_train):
     model = LogisticRegression()
     model.fit(X_train, y_train)
 
-    return model
+    return model, 
 
 
