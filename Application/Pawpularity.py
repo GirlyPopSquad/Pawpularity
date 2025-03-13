@@ -4,7 +4,7 @@ import pandas as pd
 import os
 from PIL import Image, ImageTk
 import Regression as reg
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+import CsvManager as csvManager
 
 pawpularity_model, mse, r2, pawpularity_best_param, pawpularity_best_score = reg.train_pawpularity_model()
 human_model, accuracy, loss, human_best_param, human_best_score = reg.train_human_model()
@@ -13,17 +13,21 @@ class CSVViewerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("CSV Viewer")
-        self.root.geometry("800x600")
+        self.root.geometry("900x600")
 
-        csv_files = self.load_csv_files()
+        self.setup_dropdown(root)
+        self.setup_treeview_w_scrollbar(root)     
+        self.setup_overview(root)
+
+    def setup_dropdown(self, root):
+        csv_files = csvManager.load_csv_files()
         options = csv_files
 
-        # Dropdown
         chosen_file = tk.StringVar()
         dropdown = ttk.OptionMenu(root, chosen_file, 'Choose csv', *options, command=lambda file: self.load_csv(f"Application/Data/{file}"))
         dropdown.pack()
 
-        # Treeview (Table) with Scrollbar
+    def setup_treeview_w_scrollbar(self, root):
         self.tree_frame = tk.Frame(root)
         self.tree_frame.pack(expand=False, fill="both")
 
@@ -31,19 +35,18 @@ class CSVViewerApp:
         self.tree_scroll.pack(side="right", fill="y")
 
         self.tree = ttk.Treeview(self.tree_frame, show="headings", yscrollcommand=self.tree_scroll.set)
-        self.tree.pack(expand=False, fill="both", padx=(20 , 0)) #Added paddign to make it look symmetrical against the scrollbar
+        self.tree.pack(expand=False, fill="both", padx=(20 , 0))
 
         self.tree_scroll.config(command=self.tree.yview)
-        
-        self.setup_details(root)
 
-    def setup_details(self, root):
-        self.details_frame = tk.Frame(root)
-        self.details_frame.pack(expand=False, fill="both")
+
+    def setup_overview(self, root):
+        self.overview_frame = tk.Frame(root)
+        self.overview_frame.pack(expand=True, fill="both")
 
         #Canvas Frame
-        self.canvas_frame = tk.Frame(self.details_frame)
-        self.canvas_frame.pack(padx=20, pady=10, side=tk.RIGHT)
+        self.canvas_frame = tk.Frame(self.overview_frame)
+        self.canvas_frame.pack(padx=10, pady=10, side=tk.RIGHT)
 
         self.canvas = tk.Canvas(self.canvas_frame)
         self.canvas.pack(expand=False)
@@ -54,33 +57,76 @@ class CSVViewerApp:
         self.humanLabel = tk.Label(self.canvas_frame)
         self.humanLabel.pack(expand=False)
 
-        #Metrics Frame
-        self.metrics_frame = tk.Frame(self.details_frame)
-        self.metrics_frame.pack(padx=20, pady=10, side=tk.LEFT)
+        self.setup_details_frame(self.overview_frame)
 
-        self.metricsLabel1 = tk.Label(self.metrics_frame)
-        self.metricsLabel1.pack(anchor="w", side="bottom", expand=False)
-        self.metricsLabel2 = tk.Label(self.metrics_frame)
-        self.metricsLabel2.pack(anchor="w", side="bottom", expand=False)
-        self.metricsLabel3 = tk.Label(self.metrics_frame)
-        self.metricsLabel3.pack(anchor="w", side="bottom", expand=False)
-        self.metricsLabel4 = tk.Label(self.metrics_frame)
-        self.metricsLabel4.pack(anchor="w", side="bottom", expand=False)
+    def setup_details_frame(self, parent):
+        # Details Frame
+        self.details_frame = tk.Frame(parent, bg="lightblue")
+        self.details_frame.pack(padx=10, pady=10, side=tk.LEFT, fill="x", expand=True)
+
+        # Metrics Frame
+        self.metrics_frame = tk.Frame(self.details_frame)
+        self.metrics_frame.pack(padx=10, pady=10, fill="x")
+
+        self.metrics_title_label = tk.Label(self.metrics_frame, font=("Arial", 12, "bold"), text="Metrics")
+        self.metrics_title_label.pack()
+
+        self.metrics_pawpularity_frame = tk.Frame(self.metrics_frame)
+        self.metrics_pawpularity_frame.pack(padx=10, pady=10, side=tk.LEFT) 
+
+        self.metrics_pawpularity_title = tk.Label(self.metrics_pawpularity_frame, font=("Arial", 10, "bold"),  text="Pawpularity Model")    
+        self.metrics_pawpularity_title.pack(anchor="w") 
+
+        self.mse_label = tk.Label(self.metrics_pawpularity_frame, text="MSE: {}".format(mse))
+        self.mse_label.pack(anchor="w")
+
+        self.r2_label = tk.Label(self.metrics_pawpularity_frame, text="R2: {}".format(r2))
+        self.r2_label.pack(anchor="w")
+
+        self.metrics_human_frame = tk.Frame(self.metrics_frame)
+        self.metrics_human_frame.pack(padx=10, pady=10, side=tk.RIGHT)
+
+        self.metrics_human_title = tk.Label(self.metrics_human_frame, font=("Arial", 10, "bold"), text="Human Model")
+        self.metrics_human_title.pack(anchor="w")
+
+        self.accuracy_label = tk.Label(self.metrics_human_frame, text="Accuracy: {}".format(accuracy))
+        self.accuracy_label.pack(anchor="w")
         
-        self.hyperparamterlabel1 = tk.Label(self.metrics_frame)
-        self.hyperparamterlabel1.pack(anchor="w", side="bottom")
-        self.hyperparamterlabel2 = tk.Label(self.metrics_frame)
-        self.hyperparamterlabel2.pack(anchor="w", side="bottom")
-        self.hyperparamterlabel3 = tk.Label(self.metrics_frame)
-        self.hyperparamterlabel3.pack(anchor="w", side="bottom")
-        self.hyperparamterlabel4 = tk.Label(self.metrics_frame)
-        self.hyperparamterlabel4.pack(anchor="w", side="bottom")
-    
-    def load_csv_files(self):
-        path = "Application/Data"
-        dir_list = os.listdir(path)
-        csv_list =  filter(lambda x: x.endswith('.csv'), dir_list)
-        return list(csv_list)
+        self.loss_label = tk.Label(self.metrics_human_frame, text="Log Loss: {}".format(loss))
+        self.loss_label.pack(anchor="w")
+
+        # Hyperparameters Frame
+        self.hyperparams_frame = tk.Frame(self.details_frame)
+        self.hyperparams_frame.pack(padx=10, pady=10, fill="x")
+
+        self.hyperparams_title_label = tk.Label(self.hyperparams_frame, font=("Arial", 12, "bold"), text="Hyperparameters")
+        self.hyperparams_title_label.pack()
+
+        self.hyperparams_pawpularity_frame = tk.Frame(self.hyperparams_frame)
+        self.hyperparams_pawpularity_frame.pack(padx=10, pady=10, side=tk.LEFT)
+
+        self.hyperparams_pawpularity_title = tk.Label(self.hyperparams_pawpularity_frame, font=("Arial", 10, "bold"), text="Pawpularity Model")
+        self.hyperparams_pawpularity_title.pack(anchor="w")
+        
+        # TODO: what is "PBA"
+        self.PBA_label = tk.Label(self.hyperparams_pawpularity_frame, text="PBA: {}".format(pawpularity_best_param))
+        self.PBA_label.pack(anchor="w")
+
+        self.paw_best_score = tk.Label(self.hyperparams_pawpularity_frame, text="Best Score: {}".format(pawpularity_best_score))
+        self.paw_best_score.pack(anchor="w")
+
+        self.hyperparams_human_frame = tk.Frame(self.hyperparams_frame)
+        self.hyperparams_human_frame.pack(padx=10, pady=10, side=tk.RIGHT)
+
+        self.hyperparams_human_title = tk.Label(self.hyperparams_human_frame, font=("Arial", 10, "bold"), text="Human Model")
+        self.hyperparams_human_title.pack(anchor="w")
+
+        # TODO: what is "HBA"
+        self.HBA = tk.Label(self.hyperparams_human_frame, text="HBA: {}".format(human_best_param))
+        self.HBA.pack(anchor="w")
+
+        self.human_best_score = tk.Label(self.hyperparams_human_frame, text="Best Score: {}".format(human_best_score))
+        self.human_best_score.pack(anchor="w")
     
     def load_csv(self, file_name):
         try:
@@ -120,19 +166,19 @@ class CSVViewerApp:
         
             possible_path = folder + "/" + image_id + ".jpg"
 
-            self.show_text("Image Loading", self.canvas.winfo_width() // 2, self.canvas.winfo_height() // 2)
+            self.show_text("Image Loading")
 
             if os.path.exists(possible_path):
                 self.show_image(possible_path)
                 self.show_pawpularity_score(image_id, file)
                 self.remove_if_human(image_id, file)
             else:
-                self.show_text("Image not found", self.canvas.winfo_width() // 2, self.canvas.winfo_height() // 2)
+                self.show_text("Image not found")
 
-    def show_text(self, text, x, y):
-        """Displays text on the canvas at the specified position."""
+    def show_text(self, text):
+        """Displays text in the center of the canvas."""
         self.canvas.delete("all")
-        self.canvas.create_text(x, y, text=text, anchor="center")
+        self.canvas.create_text(self.canvas.winfo_width() // 2, self.canvas.winfo_height() // 2, text=text, anchor="center")
 
     def show_image(self, image_path):
         """Displays the selected image."""
@@ -164,15 +210,6 @@ class CSVViewerApp:
 
         self.photo = ImageTk.PhotoImage(image)  # Keep a reference to avoid garbage collection
         self.canvas.create_image(canvas_width // 2, canvas_height // 2, anchor="center", image=self.photo)
-        self.metricsLabel1.configure(text="MSE: {}".format(mse))
-        self.metricsLabel2.configure(text="R2: {}".format(r2))
-        self.metricsLabel3.configure(text="Accuracy: {}".format(accuracy))
-        self.metricsLabel4.configure(text="Log Loss: {}".format(loss))
-        
-        self.hyperparamterlabel1.configure(text="PBA: {}".format(pawpularity_best_param))
-        self.hyperparamterlabel2.configure(text="PBS: {}".format(pawpularity_best_score))
-        self.hyperparamterlabel3.configure(text="HBA: {}".format(human_best_param))
-        self.hyperparamterlabel4.configure(text="HBS: {}".format(human_best_score))
         
     def show_pawpularity_score(self,image_id, file):
         
@@ -205,7 +242,7 @@ class CSVViewerApp:
         self.humanLabel.configure(text="Human score: {}".format(result))
 
         if result ==[1]:
-            self.show_text("Human detected on image, removed image", self.canvas.winfo_width() // 2, self.canvas.winfo_height() // 2)
+            self.show_text("Human detected on image, removed image")
  
         
 if __name__ == "__main__":
