@@ -9,6 +9,8 @@ import CsvManager as csvManager
 pawpularity_model, mse, r2, pawpularity_best_param, pawpularity_best_score = reg.train_pawpularity_model()
 human_model, accuracy, loss, human_best_param, human_best_score = reg.train_human_model()
 
+data_path = "Application/Data"
+
 class CSVViewerApp:
     def __init__(self, root):
         self.root = root
@@ -20,11 +22,11 @@ class CSVViewerApp:
         self.setup_overview(root)
 
     def setup_dropdown(self, root):
-        csv_files = csvManager.load_csv_files()
+        csv_files = csvManager.load_csv_files(data_path)
         options = csv_files
 
         chosen_file = tk.StringVar()
-        dropdown = ttk.OptionMenu(root, chosen_file, 'Choose csv', *options, command=lambda file: self.load_csv(f"Application/Data/{file}"))
+        dropdown = ttk.OptionMenu(root, chosen_file, 'Choose csv', *options, command=lambda file: self.load_csv(f"{data_path}/{file}"))
         dropdown.pack()
 
     def setup_treeview_w_scrollbar(self, root):
@@ -232,17 +234,18 @@ class CSVViewerApp:
         df = pd.read_csv(file)
     
         image_data = df.loc[df['Id'] == image_id]
-        
-        if "test.csv" in file:
-            image_data = image_data.drop(columns=['Id', 'Human'])
-        else:
-            image_data = image_data.drop(columns=['Id', 'Human', 'Pawpularity'])
+    
+        coloumns_to_drop = ['Id', 'Human']
+        if 'Pawpularity' in image_data.columns:
+            coloumns_to_drop.append('Pawpularity')
+
+        image_data = image_data.drop(columns=coloumns_to_drop)
         
         result = human_model.predict(image_data)
         self.humanLabel.configure(text="Human score: {}".format(result))
 
         if result ==[1]:
-            self.show_text("Human detected on image, removed image")
+            self.show_text("Human detected - image will not be shown")
  
         
 if __name__ == "__main__":
