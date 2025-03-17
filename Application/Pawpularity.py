@@ -248,10 +248,7 @@ class CSVViewerApp:
     
         image_data = df.loc[df['Id'] == image_id]
         
-        if "test.csv" in file:
-            image_data = image_data.drop(columns=['Id', 'Occlusion'])
-        else:
-            image_data = image_data.drop(columns=['Id', 'Occlusion', 'Pawpularity'])
+        image_data = image_data[['Human']]
         
         result = occlusion_model.predict_proba(image_data)
         probability_of_happening = (result[0, 1] * 100).round(3)
