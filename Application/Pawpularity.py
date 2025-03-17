@@ -254,8 +254,9 @@ class CSVViewerApp:
             image_data = image_data.drop(columns=['Id', 'Occlusion', 'Pawpularity'])
         
         result = occlusion_model.predict_proba(image_data)
+        probability_of_happening = (result[0, 1] * 100).round(3)
         
-        self.occlusion_probability_label.configure(text="Occlusion probability: {}".format(result))
+        self.occlusion_probability_label.configure(text="Occlusion probability: {}".format(probability_of_happening))
          
 
 
@@ -272,7 +273,7 @@ class CSVViewerApp:
         image_data = image_data.drop(columns=coloumns_to_drop)
         
         result = human_model.predict(image_data)
-        self.humanLabel.configure(text="Human score: {}".format(result))
+        self.humanLabel.configure(text="Human: {}".format(result))
 
         if result ==[1]:
             self.show_text("Human detected - image will not be shown")
