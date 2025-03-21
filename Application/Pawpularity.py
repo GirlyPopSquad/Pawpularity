@@ -6,10 +6,12 @@ from PIL import Image, ImageTk
 import Regression as reg
 import CsvManager as csvManager
 import OcclusionProbability as occlusionProbability
+import PawpularityNaiveBayes as pawpularityNaiveBayes
 
 pawpularity_model, mse, r2, pawpularity_best_param, pawpularity_best_score = reg.train_pawpularity_model()
 human_model, accuracy, loss, human_best_param, human_best_score = reg.train_human_model()
 occlusion_model = occlusionProbability.train_occlusion_bayes()
+pawpularity_naive_bayes_model, pawpularity_naive_bayes_accuracy = pawpularityNaiveBayes.train_pawpularity_bayes()
 
 data_path = "Application/Data"
 
@@ -141,6 +143,16 @@ class CSVViewerApp:
         
         self.occlusion_probability_label = tk.Label(self.occlusion_probability_frame, font=("Arial", 10, "bold"), text="Select image to see probability")
         self.occlusion_probability_label.pack(anchor="w")
+
+        #Pawpularity Probability
+        self.pawpularity_probability_frame = tk.Frame(self.details_frame)
+        self.pawpularity_probability_frame.pack(padx=10, pady=10, fill="x")
+        
+        self.pawpularity_probability_title_label = tk.Label(self.pawpularity_probability_frame, font=("Arial", 12, "bold"), text="Pawpularity Naive Bayes Probability")
+        self.pawpularity_probability_title_label.pack()
+        
+        self.pawpularity_probability_label = tk.Label(self.pawpularity_probability_frame, font=("Arial", 10, "bold"), text="Accuracy: {}".format(pawpularity_naive_bayes_accuracy))
+        self.pawpularity_probability_label.pack(anchor="w")
         
         
     
@@ -254,8 +266,7 @@ class CSVViewerApp:
         probability_of_happening = (result[0, 1] * 100).round(3)
         
         self.occlusion_probability_label.configure(text="Occlusion probability: {}".format(probability_of_happening))
-         
-
+        
 
     def remove_if_human(self,image_id, file):
         
