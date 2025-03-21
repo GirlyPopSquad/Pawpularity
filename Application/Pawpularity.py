@@ -19,7 +19,7 @@ class CSVViewerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("CSV Viewer")
-        self.root.geometry("900x600")
+        self.root.geometry("1000x700")
 
         self.setup_dropdown(root)
         self.setup_treeview_w_scrollbar(root)     
@@ -148,7 +148,7 @@ class CSVViewerApp:
         self.pawpularity_probability_frame = tk.Frame(self.details_frame)
         self.pawpularity_probability_frame.pack(padx=10, pady=10, fill="x")
         
-        self.pawpularity_probability_title_label = tk.Label(self.pawpularity_probability_frame, font=("Arial", 12, "bold"), text="Pawpularity Naive Bayes Probability")
+        self.pawpularity_probability_title_label = tk.Label(self.pawpularity_probability_frame, font=("Arial", 12, "bold"), text="Pawpularity Naive Bayes")
         self.pawpularity_probability_title_label.pack()
         
         self.pawpularity_probability_label = tk.Label(self.pawpularity_probability_frame, font=("Arial", 10, "bold"), text="Accuracy: {}".format(pawpularity_naive_bayes_accuracy))
