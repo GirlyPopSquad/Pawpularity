@@ -7,11 +7,15 @@ import Regression as reg
 import CsvManager as csvManager
 import OcclusionProbability as occlusionProbability
 import PawpularityNaiveBayes as pawpularityNaiveBayes
+import Bagging_Boosting_Stacking as BBS
 
 pawpularity_model, mse, r2, pawpularity_best_param, pawpularity_best_score = reg.train_pawpularity_model()
 human_model, accuracy, loss, human_best_param, human_best_score = reg.train_human_model()
 occlusion_model = occlusionProbability.train_occlusion_bayes()
 pawpularity_naive_bayes_model, pawpularity_naive_bayes_accuracy = pawpularityNaiveBayes.train_pawpularity_bayes()
+bagging_accuracy = BBS.get_bagging_model_accuracy()
+stacking_accuracy = BBS.get_stacking_model_accuracy()
+boosting_accuracy = BBS.get_boosting_model_accuracy()
 
 data_path = "Application/Data"
 
@@ -153,8 +157,36 @@ class CSVViewerApp:
         
         self.pawpularity_probability_label = tk.Label(self.pawpularity_probability_frame, font=("Arial", 10, "bold"), text="Accuracy: {}".format(pawpularity_naive_bayes_accuracy))
         self.pawpularity_probability_label.pack(anchor="w")
+
+        #Bagging Probability
+        self.bagging_probability_frame = tk.Frame(self.details_frame)
+        self.bagging_probability_frame.pack(padx=10, pady=10, fill="x")
         
+        self.bagging_probability_title_label = tk.Label(self.bagging_probability_frame, font=("Arial", 12, "bold"), text="Bagging")
+        self.bagging_probability_title_label.pack()
         
+        self.bagging_probability_label = tk.Label(self.bagging_probability_frame, font=("Arial", 10, "bold"), text="Accuracy: {}".format(bagging_accuracy))
+        self.bagging_probability_label.pack(anchor="w")
+
+        #Boosting Probability
+        self.boosting_probability_frame = tk.Frame(self.details_frame)
+        self.boosting_probability_frame.pack(padx=10, pady=10, fill="x")
+        
+        self.boosting_probability_title_label = tk.Label(self.boosting_probability_frame, font=("Arial", 12, "bold"), text="Boosting")
+        self.boosting_probability_title_label.pack()
+        
+        self.boosting_probability_label = tk.Label(self.boosting_probability_frame, font=("Arial", 10, "bold"), text="Accuracy: {}".format(boosting_accuracy))
+        self.boosting_probability_label.pack(anchor="w")
+        
+        #Stacking Probability
+        self.stacking_probability_frame = tk.Frame(self.details_frame)
+        self.stacking_probability_frame.pack(padx=10, pady=10, fill="x")
+        
+        self.stacking_probability_title_label = tk.Label(self.stacking_probability_frame, font=("Arial", 12, "bold"), text="Stacking")
+        self.stacking_probability_title_label.pack()
+        
+        self.stacking_probability_label = tk.Label(self.stacking_probability_frame, font=("Arial", 10, "bold"), text="Accuracy: {}".format(stacking_accuracy))
+        self.stacking_probability_label.pack(anchor="w")
     
     def load_csv(self, file_name):
         try:
