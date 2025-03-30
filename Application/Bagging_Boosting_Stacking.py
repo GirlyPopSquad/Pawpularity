@@ -8,14 +8,17 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import StackingClassifier
 
-def get_bagging_model_accuracy ():
-    df = pd.read_csv('Application/Data/train.csv')
-    feature_names = ['Subject Focus', 'Eyes', 'Face', 'Near', 'Action', 'Accessory', 
-                 'Group', 'Collage', 'Human', 'Info', 'Blur']
-    X = df[feature_names]
-    y = df['Pawpularity']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=0)
+from CsvManager import get_train_dataframe
 
+feature_names = ['Subject Focus', 'Eyes', 'Face', 'Near', 'Action', 'Accessory', 
+                 'Group', 'Collage', 'Human', 'Info', 'Blur']
+df = get_train_dataframe()
+X = df[feature_names]
+y = df['Pawpularity']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=0)
+
+
+def get_bagging_model_accuracy ():
     bagging_classifier = BaggingClassifier(n_estimators=25, random_state=30)
     bagging_classifier.fit(X_train, y_train)
 
@@ -25,13 +28,6 @@ def get_bagging_model_accuracy ():
     return accuracy
 
 def get_boosting_model_accuracy ():
-    df = pd.read_csv('Application/Data/train.csv')
-    feature_names = ['Subject Focus', 'Eyes', 'Face', 'Near', 'Action', 'Accessory', 
-                 'Group', 'Collage', 'Human', 'Info', 'Blur']
-    X = df[feature_names]
-    y = df['Pawpularity']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=0)
-
     base = DecisionTreeClassifier(criterion='gini', max_depth=10)
     model_ada = AdaBoostClassifier(n_estimators=10, random_state=42, estimator=base)
     model_ada.fit(X_train, y_train)
@@ -42,13 +38,6 @@ def get_boosting_model_accuracy ():
     return accuracy
 
 def get_stacking_model_accuracy ():
-    df = pd.read_csv('Application/Data/train.csv')
-    feature_names = ['Subject Focus', 'Eyes', 'Face', 'Near', 'Action', 'Accessory', 
-                 'Group', 'Collage', 'Human', 'Info', 'Blur']
-    X = df[feature_names]
-    y = df['Pawpularity']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=0)
-
     models = [('Logistic Regression', LogisticRegression()),
           ('Support Vector Classifier', SVC()),
           ('Decision Tree', DecisionTreeClassifier())]

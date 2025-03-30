@@ -3,8 +3,11 @@ from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, log_lo
 from sklearn.model_selection import train_test_split, GridSearchCV
 import pandas as pd
 
+from CsvManager import get_train_dataframe
+
+df = get_train_dataframe()
+
 def load_pawpularity_data():
-    df = pd.read_csv('Application/Data/train.csv')
     X = df.drop(columns=['Id', 'Pawpularity'])
     y = df['Pawpularity']
 
@@ -13,7 +16,6 @@ def load_pawpularity_data():
     return X_train, X_test, y_train, y_test
 
 def load_human_data():
-    df = pd.read_csv('Application/Data/train.csv')
     X = df.drop(columns=['Id', 'Human', 'Pawpularity'])
     y = df['Human']
 
