@@ -22,8 +22,8 @@ data_path = "Application/Data"
 class CSVViewerApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("CSV Viewer")
-        self.root.geometry("1000x700")
+        self.root.title("CSV Viewer")         
+        self.root.state('zoomed')
 
         self.setup_dropdown(root)
         self.setup_treeview_w_scrollbar(root)     
